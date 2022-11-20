@@ -8,6 +8,7 @@ package validate;
 import dbconnection.DBConnect;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -47,8 +48,11 @@ public class ValidateLogin extends HttpServlet {
                                         session.setAttribute("userid", rs.getString("id"));
                                         session.setAttribute("user", rs.getString("username"));
                                         session.setAttribute("isLoggedIn", "1");
-                                        Cookie privilege=new Cookie("privilege", getMD5(user));
-                                        response.addCookie(privilege);
+                                        String cookie = "privilege="+randomCookie()
+                                        response.addHeader("Set-Cookie", cookie+"; HttpOnly; Secure; SameSite=strict");
+                                        response.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token, X-Csrf-Token, WWW-Authenticate, Authorization");
+                                        response.setHeader("Access-Control-Allow-Credentials", "false");
+                                        response.setHeader("Content-Security-Policy", "self");
                                         response.sendRedirect("members.jsp");
                                    }
                                     
@@ -61,34 +65,50 @@ public class ValidateLogin extends HttpServlet {
         
         
     }
+
+    private static String randomCookie() {
+        byte[] byteArray = new byte[20];
+        new SecureRandom().nextBytes(byteArray);
+        return bytesToHex(byteArray);
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
     
-    private String getMD5(String user) {
+//     private String getMD5(String user) {
 
-        MessageDigest mdAlgorithm = null;
-        try {
-            mdAlgorithm = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(ValidateLogin.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        mdAlgorithm.update(user.getBytes());
+//         MessageDigest mdAlgorithm = null;
+//         try {
+//             mdAlgorithm = MessageDigest.getInstance("MD5");
+//         } catch (NoSuchAlgorithmException ex) {
+//             Logger.getLogger(ValidateLogin.class.getName()).log(Level.SEVERE, null, ex);
+//         }
+//         mdAlgorithm.update(user.getBytes());
 
-        byte[] digest = mdAlgorithm.digest();
-        StringBuffer hexString = new StringBuffer();
+//         byte[] digest = mdAlgorithm.digest();
+//         StringBuffer hexString = new StringBuffer();
 
-        for (int i = 0; i < digest.length; i++) {
-            user = Integer.toHexString(0xFF & digest[i]);
+//         for (int i = 0; i < digest.length; i++) {
+//             user = Integer.toHexString(0xFF & digest[i]);
 
-            if (user.length() < 2) {
-                user = "0" + user;
-            }
+//             if (user.length() < 2) {
+//                 user = "0" + user;
+//             }
 
-            hexString.append(user);
-        }
+//             hexString.append(user);
+//         }
 
-return hexString.toString();
+// return hexString.toString();
 
         
-    }
+//     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
