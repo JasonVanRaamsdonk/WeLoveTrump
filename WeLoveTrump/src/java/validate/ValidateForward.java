@@ -26,17 +26,25 @@ public class ValidateForward extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        String[] AuthorisedLocations = {"index.jsp", "login.jsp", "quotes.jsp", "news.jsp"};
+        List<String> AuthoirsedLocationsList = new ArrayList<>(Arrays.asList(AuthorisedLocations));
         PrintWriter out = response.getWriter();
         try {
            if(request.getParameter("location")!=null)
             {
                 String location=request.getParameter("location");
-                //Forwarding
-                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(location);
-                dispatcher.forward(request,response);
+                if (AuthoirsedLocationsList.contains("location")){
+                    //Forwarding
+                    RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(location);
+                    dispatcher.forward(request,response);
+                } else {
+                    out.print("Location not authorised!")
+                }
+                
             }
             else
             {
