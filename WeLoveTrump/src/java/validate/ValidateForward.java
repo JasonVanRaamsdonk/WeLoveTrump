@@ -5,7 +5,7 @@
  */
 package validate;
 
-
+import java.util.ArrayList;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
@@ -30,8 +30,12 @@ public class ValidateForward extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String[] AuthorisedLocations = {"index.jsp", "login.jsp", "quotes.jsp", "news.jsp"};
-        List<String> AuthoirsedLocationsList = new ArrayList<>(Arrays.asList(AuthorisedLocations));
+        // String[] AuthorisedLocations = new String[]{"index.jsp", "login.jsp", "quotes.jsp", "news.jsp"};
+        ArrayList<String> AuthoirsedLocationsList = new ArrayList<String>();
+        AuthoirsedLocationsList.add("index.jsp");
+        AuthoirsedLocationsList.add("login.jsp");
+        AuthoirsedLocationsList.add("quotes.jsp");
+        AuthoirsedLocationsList.add("news.jsp");
         PrintWriter out = response.getWriter();
         try {
            if(request.getParameter("location")!=null)
@@ -42,7 +46,7 @@ public class ValidateForward extends HttpServlet {
                     RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(location);
                     dispatcher.forward(request,response);
                 } else {
-                    out.print("Location not authorised!")
+                    out.print("Location not authorised!");
                 }
                 
             }
