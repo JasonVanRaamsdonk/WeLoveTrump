@@ -2,6 +2,10 @@
 <%@page import="java.sql.Statement"%>
 <%@page import="dbconnection.DBConnect"%>
 <%@page import="java.sql.Connection"%>
+<%@page import="org.jsoup.Jsoup"%>
+<%@page import="org.jsoup.safety.Safelist"%>
+<%@page import="java.sql.PreparedStatement"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -48,9 +52,15 @@
                 <%
 
                     if (request.getParameter("post") != null) {
-                        String user = request.getParameter("user");
-                        String content = request.getParameter("content");
-                        String title = request.getParameter("title");
+                        // String user = request.getParameter("user");
+                        // String content = request.getParameter("content");
+                        // String title = request.getParameter("title");
+                        // user = Jsoup.clean(user, Safelist.basic());
+                        // content = Jsoup.clean(content, Safelist.basic());
+                        // title = Jsoup.clean(title, Safelist.basic());
+                        String user = Jsoup.clean(request.getParameter("user"), Safelist.basic());
+                        String content = Jsoup.clean(request.getParameter("content"), Safelist.basic());
+                        String title = Jsoup.clean(request.getParameter("title"), Safelist.basic());
 
                 %>
                 <%        if (con != null && !con.isClosed()) {
