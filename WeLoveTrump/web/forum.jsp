@@ -1,11 +1,10 @@
-<%@page import="java.sql.ResultSet"%>
-<%@page import="java.sql.Statement"%>
-<%@page import="dbconnection.DBConnect"%>
-<%@page import="java.sql.Connection"%>
 <%@page import="org.jsoup.Jsoup"%>
 <%@page import="org.jsoup.safety.Safelist"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
 <%@page import="java.sql.PreparedStatement"%>
-
+<%@page import="dbconnection.DBConnect"%>
+<%@page import="java.sql.Connection"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -38,7 +37,6 @@
             <div id="content">
                 <h3>Create Post:</h3>
                 <form action="forum.jsp" method="POST">
-                    <sec:csrfInput/>
                     Title : <input type="text" name="title" value="" size="50"/><br/>
                     Message: <br/><textarea name="content" rows="2" cols="50"></textarea>
                     <input type="hidden" name="user" value="<% if (session.getAttribute("user") != null) {
@@ -52,20 +50,24 @@
                 <%
 
                     if (request.getParameter("post") != null) {
-                        // String user = request.getParameter("user");
-                        // String content = request.getParameter("content");
-                        // String title = request.getParameter("title");
-                        // user = Jsoup.clean(user, Safelist.basic());
-                        // content = Jsoup.clean(content, Safelist.basic());
-                        // title = Jsoup.clean(title, Safelist.basic());
-                        String user = Jsoup.clean(request.getParameter("user"), Safelist.basic());
-                        String content = Jsoup.clean(request.getParameter("content"), Safelist.basic());
-                        String title = Jsoup.clean(request.getParameter("title"), Safelist.basic());
+                        String sanitisedUser = request.getParameter("user");
+                        String sanitisedContent = request.getParameter("content");
+                        String sanitisedTitle = request.getParameter("title");
+                        sanitisedUser = Jsoup.clean(sanitisedUser, Safelist.basic());
+                        sanitisedContent = Jsoup.clean(sanitisedContent, Safelist.basic());
+                        sanitisedTitle = Jsoup.clean(sanitisedTitle, Safelist.basic());
+                        // String sanitisedUser = Jsoup.clean(request.getParameter("user"), Safelist.basic());
+                        // String sanitisedContent = Jsoup.clean(request.getParameter("content"), Safelist.basic());
+                        // String sanitisedTitle = Jsoup.clean(request.getParameter("title"), Safelist.basic());
 
                 %>
                 <%        if (con != null && !con.isClosed()) {
-                            Statement stmt = con.createStatement();
-                            stmt.executeUpdate("INSERT into posts(content,title,user) values ('" + content + "','" + title + "','" + user + "')");
+                            String sqlQuery = "INSERT into posts(content,title,user) values (?,?,?)";
+                            PreparedStatement statement = con.prepareStatement(sqlQuery);
+                            statement.setString(1, sanitisedContent);
+                            statement.setString(2, sanitisedTitle);
+                            statement.setString(3, sanitisedUser);
+                            statement.executeQuery();
                             out.print("Successfully posted");
                         }
                     }
@@ -76,9 +78,9 @@
                 <p>&nbsp;</p>
                 <h3>List of Posts:</h3> 
                 <%        if (con != null && !con.isClosed()) {
-                        Statement stmt = con.createStatement();
+                        Statement statement = con.createStatement();
                         ResultSet rs = null;
-                        rs = stmt.executeQuery("select * from posts");
+                        rs = statement.executeQuery("select * from posts");
                         out.println("<table border='1' width='80%'>");
                         while (rs.next()) {
                             out.print("<tr>");

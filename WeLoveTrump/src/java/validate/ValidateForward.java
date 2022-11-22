@@ -36,7 +36,7 @@ public class ValidateForward extends HttpServlet {
         AuthoirsedLocationsList.add("login.jsp");
         AuthoirsedLocationsList.add("quotes.jsp");
         AuthoirsedLocationsList.add("news.jsp");
-        AuthoirsedLocationsList.add("forum.jsp");
+        // AuthoirsedLocationsList.add("forum.jsp");
         PrintWriter out = response.getWriter();
         try {
            if(request.getParameter("location")!=null)

@@ -12,6 +12,7 @@ import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -32,27 +33,34 @@ public class ValidateLogin extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String user=request.getParameter("username").trim();
-        String pass=request.getParameter("password").trim();
+        String username = request.getParameter("username").trim();
+        String password = request.getParameter("password").trim();
+
+        String sqlQuery = "select * from users where username = ? and password = ?";
+        PreparedStatement statement = null;
         
         try
              {
                  Connection con=new DBConnect().connect(getServletContext().getRealPath("/WEB-INF/config.properties"));
                     if(con!=null && !con.isClosed())
                                {
-                                   ResultSet rs=null;
-                                   Statement stmt = con.createStatement();  
-                                   rs=stmt.executeQuery("select * from users where username='"+user+"' and password='"+pass+"'");
-                                   if(rs != null && rs.next()){
+                                    statement = con.prepareStatement(sqlQuery);
+                                    statement.setString(1, username);
+                                    statement.setString(2, password);
+                                    ResultSet resultSet = statement.executeQuery();
+                                //    ResultSet rs = null;
+                                //    Statement statement = con.createStatement();  
+                                //    rs = statement.executeQuery("select * from users where username='"+user+"' and password='"+pass+"'");
+                                   if(resultSet != null && resultSet.next()){
                                         HttpSession session=request.getSession();
-                                        session.setAttribute("userid", rs.getString("id"));
-                                        session.setAttribute("user", rs.getString("username"));
+                                        session.setAttribute("userid", resultSet.getString("id"));
+                                        session.setAttribute("user", resultSet.getString("username"));
                                         session.setAttribute("isLoggedIn", "1");
                                         String cookie = "privilege="+randomCookie();
                                         response.addHeader("Set-Cookie", cookie+"; HttpOnly; Secure; SameSite=strict");
-                                        response.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token, X-Csrf-Token, WWW-Authenticate, Authorization");
                                         response.setHeader("Access-Control-Allow-Credentials", "false");
                                         response.setHeader("Content-Security-Policy", "self");
+                                        response.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token, X-Csrf-Token, WWW-Authenticate, Authorization");
                                         response.sendRedirect("members.jsp");
                                    }
                                     
@@ -91,7 +99,7 @@ public class ValidateLogin extends HttpServlet {
 
 // return hexString.toString();
 
-private static String randomCookie() {
+    private static String randomCookie() {
         byte[] byteArray = new byte[20];
         new SecureRandom().nextBytes(byteArray);
         return bytesToHex(byteArray);
@@ -104,6 +112,17 @@ private static String randomCookie() {
         }
         return result.toString();
     }
+    // public static void convertByteToHexadecimal(byte[] byteArray)
+    // {
+    //     String hex = "";
+  
+    //     // Iterating through each byte in the array
+    //     for (byte i : byteArray) {
+    //         hex += String.format("%02X", i);
+    //     }
+  
+    //     return hex;
+    // }
 
         
 //     }

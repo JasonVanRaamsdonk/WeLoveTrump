@@ -36,7 +36,7 @@
                 <p>&nbsp;</p>
                 <p>&nbsp;</p>
                 <%
-                    String authenticatedUser = session.getAttribute("user").toString();
+                    String currentSessionUser = session.getAttribute("user").toString();
                     if (session.getAttribute("isLoggedIn") != null) {
                         Connection con = new DBConnect().connect(getServletContext().getRealPath("/WEB-INF/config.properties"));
 
@@ -46,9 +46,8 @@
                             ResultSet rs = null;
  
                             rs = stmt.executeQuery("select * from users where id="+id);
-    //                            boolean auth = authenticatedUser.equals(rs.getString("username"));
-                            if (rs != null && rs.next() && authenticatedUser.equals(rs.getString("username"))) {
-                                out.print("UserName : " + rs.getString("username") + "=" + authenticatedUser + "<br>");
+                            if (rs != null && rs.next() && currentSessionUser.equals(rs.getString("username"))) {
+                                out.print("UserName : " + rs.getString("username") + "=" + currentSessionUser + "<br>");
                                 out.print("Email : " + rs.getString("email") + "<br>");
                                 out.print("About : " + rs.getString("about") + "<br>");
 
